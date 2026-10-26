@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dicionário de Prompts — Victor Viana</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans (UI limpa), Instrument Serif (Títulos Editoriais) e JetBrains Mono (Apenas Prompts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Instrument Serif', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        stage: {
+                            950: '#050507',
+                            900: '#0b0b0f',
+                            850: '#121218',
+                            800: '#1a1a24',
+                            700: '#272735',
+                            accent: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Scrollbar discreta e elegante */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #050507; }
+        ::-webkit-scrollbar-thumb { background: #272735; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        body {
+            background-color: #050507;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.09) 0%, transparent 60%),
+                radial-gradient(circle at 15% 85%, rgba(217, 119, 6, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
+        }
+
+        /* ==========================================================================
+           1. ANIMAÇÃO DE ENTRADA: GOTA DE ÁGUA NO ESCURO E ONDAS DE REVELAÇÃO
+           ========================================================================== */
+        #waterDropIntro {
+            background: #030305;
+            transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.9s;
+        }
+        #waterDropIntro.intro-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* A Gota Luminosa Caindo */
+        .water-drop {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            width: 10px;
+            height: 22px;
+            margin-left: -5px;
+            border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, #fbbf24 55%, #f59e0b 100%);
+            box-shadow: 0 0 14px 2px rgba(245, 158, 11, 0.45);
+            opacity: 0;
+        }
+        .play-drop .water-drop {
+            animation: dropFall 1.1s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+        }
+
+        @keyframes dropFall {
+            0% {
+                top: -50px;
+                opacity: 0;
+                transform: scaleX(0.85) scaleY(1.3);
+            }
+            15% {
+                opacity: 1;
+            }
+            88% {
+                top: 50%;
+                opacity: 1;
+                transform: scaleX(0.75) scaleY(1.45);
+            }
+            95% {
+                top: 50%;
+                opacity: 0.9;
+                transform: scaleX(1.6) scaleY(0.35);
+            }
+            100% {
+                top: 50%;
+                opacity: 0;
+                transform: scaleX(0.2) scaleY(0.1);
+            }
+        }
+
+        /* Ondas Concêntricas Nítidas (Sem distorção de scale ou estouro de cor) */
+        .ripple-stage {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .ripple-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 6px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(251, 191, 36, 0.55);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+        }
+        .play-drop .ripple-1 {
+            animation: rippleExpand 2.8s cubic-bezier(0.16, 1, 0.3, 1) 1.02s forwards;
+        }
+        .play-drop .ripple-2 {
+            border-color: rgba(255, 255, 255, 0.28);
+            animation: rippleExpand 3.1s cubic-bezier(0.16, 1, 0.3, 1) 1.24s forwards;
+        }
+        .play-drop .ripple-3 {
+            border-color: rgba(245, 158, 11, 0.32);
+            animation: rippleExpand 3.4s cubic-bezier(0.16, 1, 0.3, 1) 1.46s forwards;
+        }
+
+        @keyframes rippleExpand {
+            0% {
+                width: 12px;
+                height: 6px;
+                opacity: 0.85;
+                border-width: 1.5px;
+            }
+            70% {
+                opacity: 0.28;
+            }
+            100% {
+                width: 190vmax;
+                height: 110vmax;
+                opacity: 0;
+                border-width: 1px;
+            }
+        }
+
+        /* Brilho central sutil e controlado apenas no ponto onde a gota toca */
+        .splash-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 420px;
+            height: 180px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.14) 0%, rgba(245, 158, 11, 0.04) 45%, transparent 70%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .play-drop .splash-glow {
+            animation: splashFlash 2.6s ease-out 1.02s forwards;
+        }
+
+        @keyframes splashFlash {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
+        }
+
+        /* Revelação Estável do Título após o pingo da gota (Sem piscar) */
+        .intro-title-box {
+            opacity: 0;
+            transform: translate3d(0, 16px, 0) scale(0.97);
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        .play-drop .intro-title-box {
+            animation: revealIntroText 1.4s cubic-bezier(0.22, 1, 0.36, 1) 1.15s forwards;
+        }
+
+        @keyframes revealIntroText {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, 16px, 0) scale(0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        /* ==========================================================================
+           2. MOLDURA DO TELÃO & ROTAÇÃO 3D DE ESTRUTURA
+           ========================================================================== */
+        .telao-perspective-stage {
+            perspective: 2200px;
+        }
+
+        .telao-frame {
+            box-shadow: 
+                0 35px 100px -20px rgba(0, 0, 0, 0.95),
+                0 0 0 1px rgba(255, 255, 255, 0.09),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+            transform-style: preserve-3d;
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Animação de Giro 3D da Estrutura do Telão ao trocar de seção */
+        @keyframes rotateStageRight {
+            0% { opacity: 0.3; transform: rotateY(-14deg) scale(0.96) translateZ(-40px); }
+            100% { opacity: 1; transform: rotateY(0deg) scale(1) translateZ(0); }
+        }
+        @keyframes rotateStageLeft {
+            0% { opacity: 0.3; transform: rotateY(14deg) scale(0.96) translateZ(-40px); }
+            100% { opacity: 1; transform: rotateY(0deg) scale(1) translateZ(0); }
+        }
+        .spin-stage-next {
+            animation: rotateStageRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .spin-stage-prev {
+            animation: rotateStageLeft 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* ==========================================================================
+           3. EFEITO DE GIRAR O CARD EM 3D (FLIP 180 GRAUS NA ESTRUTURA DO CARD)
+           ========================================================================== */
+        .flip-card-3d {
+            perspective: 1500px;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.34, 1.45, 0.64, 1);
+        }
+        .flip-card-3d.is-flipped .flip-card-inner,
+        body.show-original-all .flip-card-3d .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* ==========================================================================
+           4. FILTROS VISUAIS CALIBRADOS PARA A FOTO DO VICTOR VIANA
+           ========================================================================== */
+        .fx-golden-hour { filter: sepia(0.32) saturate(1.65) contrast(1.12) brightness(1.03) hue-rotate(-8deg); }
+        .fx-rim-light { filter: contrast(1.42) brightness(0.84) saturate(1.08); }
+        .fx-neon-city { filter: contrast(1.25) saturate(1.75) hue-rotate(185deg) brightness(0.94); }
+        .fx-soft-window { filter: contrast(1.18) brightness(0.96) saturate(0.88); }
+
+        .fx-85mm-bokeh { filter: contrast(1.08) saturate(1.12); }
+        .fx-24mm-wide { transform: scale(1.12); filter: contrast(1.18) saturate(1.05); }
+        .fx-close-cinema { transform: scale(1.22); filter: contrast(1.22) sepia(0.12) saturate(1.15); }
+
+        .fx-kodak-warm { filter: sepia(0.24) contrast(0.96) brightness(1.06) saturate(1.3); }
+        .fx-bw-classic { filter: grayscale(1) contrast(1.48) brightness(0.96); }
+        .fx-cinema-pastel { filter: sepia(0.22) saturate(1.35) contrast(0.92) brightness(1.08) hue-rotate(12deg); }
+
+        .fx-wind-action { filter: contrast(1.16) brightness(1.02) saturate(0.92); }
+        .fx-rain-mood { filter: contrast(1.28) brightness(0.88) saturate(0.82) hue-rotate(165deg); }
+
+        .fx-prism-light { filter: contrast(1.1) saturate(1.25); }
+        .fx-double-nature { filter: grayscale(0.65) contrast(1.32) brightness(1.06) sepia(0.18); }
+
+        .fx-clay-3d { filter: saturate(1.65) contrast(1.24) brightness(1.04); }
+        .fx-oil-canvas { filter: sepia(0.28) contrast(1.3) saturate(1.45) brightness(0.95); }
+
+        /* Camadas de atmosfera de iluminação sobre a foto */
+        .ov-golden::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.32), rgba(239, 68, 68, 0.12), transparent 70%);
+            mix-blend-mode: screen; pointer-events: none;
+        }
+        .ov-rim::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 48% 36%, transparent 32%, rgba(0, 0, 0, 0.78) 92%);
+            pointer-events: none;
+        }
+        .ov-neon::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(125deg, rgba(6, 182, 212, 0.38) 0%, transparent 50%, rgba(217, 70, 239, 0.38) 100%);
+            mix-blend-mode: color-dodge; pointer-events: none;
+        }
+        .ov-window::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0.14) 0%, transparent 45%, rgba(0,0,0,0.65) 100%);
+            pointer-events: none;
+        }
+        .ov-prism::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,60,60,0.22), rgba(60,255,120,0.18), rgba(60,120,255,0.25));
+            mix-blend-mode: screen; pointer-events: none;
+        }
+    </style>
+</head>
+<body class="text-zinc-100 font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200 min-h-screen flex flex-col justify-between overflow-x-hidden relative">
+
+    <!-- ============================================================================
+         ANIMAÇÃO DE ABERTURA: ESCURIDÃO + GOTA PINGANDO + REVELAÇÃO DO TÍTULO
+         ============================================================================ -->
+    <div id="waterDropIntro" class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden select-none play-drop">
+        <!-- Camada isolada da Gota e Ondas para nunca conflitar com o texto -->
+        <div class="ripple-stage">
+            <div class="water-drop"></div>
+            <div class="splash-glow"></div>
+            <div class="ripple-ring ripple-1"></div>
+            <div class="ripple-ring ripple-2"></div>
+            <div class="ripple-ring ripple-3"></div>
+        </div>
+
+        <!-- Título Revelado pelas Ondas (Camada Superior Estável) -->
+        <div class="intro-title-box relative z-30 text-center px-6">
+            <h1 class="font-serif text-5xl sm:text-7xl lg:text-8xl text-white tracking-tight leading-none drop-shadow-[0_12px_40px_rgba(0,0,0,0.95)]">
+                Dicionário de <span class="italic text-amber-400">Prompts</span>
+            </h1>
+            <div class="mt-6 flex items-center justify-center gap-4">
+                <span class="h-[1px] w-14 bg-gradient-to-r from-transparent to-amber-500/70"></span>
+                <p class="text-sm sm:text-base uppercase tracking-[0.35em] text-zinc-200 font-medium">
+                    Victor Viana
+                </p>
+                <span class="h-[1px] w-14 bg-gradient-to-l from-transparent to-amber-500/70"></span>
+            </div>
+        </div>
+
+        <!-- Botão discreto para pular intro caso deseje -->
+        <button 
+            onclick="dismissIntro()"
+            class="absolute bottom-8 z-30 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-400 hover:text-white transition-all flex items-center gap-1.5"
+        >
+            <span>Entrar Agora</span>
+            <i class="ph-bold ph-arrow-right"></i>
+        </button>
+    </div>
+
+    <!-- ============================================================================
+         BACKGROUND CRIATIVO DE FOTOGRAFIA (PARTÍCULAS DE BOKEH F/1.4 & LUZ DE PROJETOR)
+         ============================================================================ -->
+    <canvas id="photographyBokehCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+    <!-- Input oculto caso o usuário queira selecionar a foto manualmente no preview online -->
+    <input type="file" id="photoFileInput" accept="image/*" class="hidden">
+
+    <!-- ============================================================================
+         MODO 1: O GRANDE TELÃO INTERATIVO (ALTURA FIXA E SETAS TRAVADAS NO LUGAR)
+         ============================================================================ -->
+    <div id="telaoWrapper" class="telao-perspective-stage flex-1 flex items-center justify-center px-3 sm:px-16 lg:px-24 pt-3 pb-20 h-screen overflow-hidden relative z-10">
+        
+        <!-- SETA ESQUERDA DO TELÃO (POSIÇÃO FIXA INDEPENDENTE DO CONTEÚDO) -->
+        <button 
+            onclick="prevTelaoSlide()"
+            aria-label="Seção anterior do telão"
+            class="hidden md:flex fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full bg-stage-900/95 hover:bg-amber-500 text-zinc-200 hover:text-stage-950 border border-white/15 hover:border-amber-400 items-center justify-center shadow-2xl transition-colors duration-200 group"
+            title="Girar para Tela Anterior (Seta Esquerda)"
+        >
+            <i class="ph-bold ph-caret-left text-2xl group-hover:-translate-x-0.5 transition-transform"></i>
+        </button>
+
+        <!-- MOLDURA DO GRANDE TELÃO (ALTURA FIXA DE 82VH PARA NÃO DESLOCAR BOTÕES) -->
+        <main id="telaoMainFrame" class="telao-frame w-full max-w-[1540px] h-[82vh] bg-stage-900/90 backdrop-blur-2xl rounded-[28px] border border-white/15 flex flex-col justify-between overflow-hidden relative">
+            
+            <!-- CABEÇALHO LIMPO (APENAS NOME DO PROJETO + REVER INTRO E INDICADORES) -->
+            <header class="px-6 sm:px-10 lg:px-12 py-4 border-b border-white/[0.08] flex items-center justify-between gap-4 bg-stage-950/70 shrink-0">
+                
+                <!-- Esquerda: Emblema de Lente Fotográfica + Nome do Projeto "Dicionário de Prompts" -->
+                <div class="flex items-center gap-3.5">
+                    <button 
+                        onclick="goToTelaoSlide(0)"
+                        class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500/25 to-amber-600/5 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-inner group hover:scale-105 transition-transform"
+                        title="Ir para o Início"
+                    >
+                        <i class="ph-duotone ph-aperture text-2xl group-hover:rotate-90 transition-transform duration-500"></i>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <span class="font-serif text-2xl sm:text-3xl text-white tracking-wide leading-none">
+                            Dicionário de Prompts
+                        </span>
+                        <span class="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] font-semibold text-amber-400">
+                            por Victor Viana
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Direita: Botão Rever Gota + Indicadores de Telas -->
+                <div class="flex items-center gap-3">
+                    <button 
+                        onclick="replayWaterDropIntro()"
+                        class="px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-amber-500/15 text-zinc-300 hover:text-amber-300 border border-white/10 hover:border-amber-500/30 text-xs font-medium flex items-center gap-1.5 transition-all"
+                        title="Rever animação da gota d'água"
+                    >
+                        <i class="ph-fill ph-drop text-amber-400"></i>
+                        <span class="hidden sm:inline">Rever Intro</span>
+                    </button>
+
+                    <div class="flex items-center gap-1.5" id="telaoDots">
+                        <!-- Gerado via JS -->
+                    </div>
+
+                    <div class="flex md:hidden items-center gap-1 ml-1">
+                        <button onclick="prevTelaoSlide()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-300">
+                            <i class="ph-bold ph-caret-left text-sm"></i>
+                        </button>
+                        <button onclick="nextTelaoSlide()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-300">
+                            <i class="ph-bold ph-caret-right text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ====================================================================
+                 SLIDE 0 DO TELÃO: HOME CLEAN + CARD COM BOTÃO DE FILTRO ALEATÓRIO
+                 ==================================================================== -->
+            <section id="slideHome" class="telao-slide flex-1 overflow-y-auto px-6 sm:px-12 lg:px-16 py-8 flex items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 items-center w-full my-auto">
+                    
+                    <!-- Coluna Esquerda: Super Clean, Tipografia Ampliada e Foco Editorial (7 colunas) -->
+                    <div class="lg:col-span-7 space-y-8">
+                        <div class="space-y-6">
+                            <h1 class="font-serif text-5xl sm:text-7xl xl:text-[5.25rem] text-white leading-[1.02] tracking-tight">
+                                Domine a arte de transformar retratos com <span class="italic text-amber-400">prompts</span>.
+                            </h1>
+
+                            <p class="text-zinc-200 text-lg sm:text-xl xl:text-2xl leading-relaxed max-w-3xl font-normal">
+                                Veja na prática como diferentes comandos de luz, lentes e cores transformam uma mesma foto real sem fazer você parecer outra pessoa. Explore os filtros prontos ou teste um efeito agora mesmo no retrato ao lado.
+                            </p>
+                        </div>
+
+                        <!-- Ações principais em destaque -->
+                        <div class="pt-2 flex flex-wrap items-center gap-4">
+                            <button onclick="goToTelaoSlide(2)" class="px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-stage-950 font-bold text-base sm:text-lg flex items-center gap-3 transition-all shadow-xl shadow-amber-500/20 hover:scale-[1.02]">
+                                <span>Explorar Categorias de Filtros</span>
+                                <i class="ph-bold ph-arrow-right text-xl"></i>
+                            </button>
+                            <button onclick="goToTelaoSlide(1)" class="px-7 py-4 rounded-2xl bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-base sm:text-lg border border-white/15 transition-all flex items-center gap-2.5">
+                                <i class="ph-bold ph-graduation-cap text-amber-400 text-xl"></i>
+                                <span>Guia de Aprendizado</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Direita: Foto da Home com Botão "Filtro Aleatório" e Giro 3D (5 colunas) -->
+                    <div class="lg:col-span-5 flex flex-col items-center lg:items-end">
+                        <div class="w-full max-w-[400px]">
+                            <!-- Barra superior do Card da Foto -->
+                            <div class="flex items-center justify-between mb-2.5 px-1">
+                                <span id="homeActiveFilterBadge" class="text-xs font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                                    <i class="ph-fill ph-sparkle"></i>
+                                    <span>Foto Original de Base</span>
+                                </span>
+                                <button 
+                                    onclick="document.getElementById('heroFlipCard').classList.toggle('is-flipped')"
+                                    class="text-xs font-semibold text-zinc-300 hover:text-amber-400 flex items-center gap-1 transition-colors"
+                                >
+                                    <i class="ph-bold ph-arrows-clockwise"></i>
+                                    <span>Virar Card 3D</span>
+                                </button>
+                            </div>
+
+                            <!-- Estrutura 3D que gira 180 graus -->
+                            <div 
+                                id="heroFlipCard"
+                                onclick="this.classList.toggle('is-flipped')"
+                                class="flip-card-3d w-full aspect-[3/4] cursor-pointer select-none"
+                                title="Clique na foto para girar o card em 3D"
+                            >
+                                <div class="flip-card-inner shadow-2xl">
+                                    
+                                    <!-- FRENTE DO CARD: FOTO INTERATIVA DA HOME (RECEBE O FILTRO ALEATÓRIO) -->
+                                    <div class="flip-card-front bg-stage-950 border border-white/15 p-3 flex flex-col">
+                                        <div id="heroPhotoOverlayBox" class="relative flex-1 w-full rounded-xl overflow-hidden bg-zinc-900">
+                                            <img 
+                                                id="heroMainPhoto"
+                                                src="Broad_and_strong_shoulders._20261026171336.jpg" 
+                                                alt="Victor Viana — Retrato Principal" 
+                                                class="dynamic-base-photo w-full h-full object-cover object-top transition-all duration-500"
+                                            >
+
+                                            <!-- Selo superior que aparece quando um Filtro Aleatório está ativo -->
+                                            <div id="heroRandomPromptBanner" class="hidden absolute top-3 inset-x-3 bg-black/80 backdrop-blur-md border border-amber-500/40 rounded-xl p-2.5 flex items-center justify-between gap-2">
+                                                <div class="min-w-0">
+                                                    <span class="text-[10px] uppercase tracking-wider text-amber-400 font-bold block">Filtro Aplicado</span>
+                                                    <span id="heroRandomFilterName" class="text-xs font-serif text-white truncate block">Luz de Fim de Tarde</span>
+                                                </div>
+                                                <button 
+                                                    onclick="event.stopPropagation(); resetHomeRandomFilter()"
+                                                    class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] text-zinc-200 shrink-0 transition-colors"
+                                                    title="Voltar para a foto sem filtro"
+                                                >
+                                                    Original
+                                                </button>
+                                            </div>
+
+                                            <!-- Rodapé da Foto na Home com o botão "Filtro Aleatório" em destaque -->
+                                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 pt-12 flex items-center justify-between gap-2">
+                                                <button 
+                                                    onclick="event.stopPropagation(); applyRandomHomeFilter()"
+                                                    class="flex-1 py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stage-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition-all active:scale-95"
+                                                >
+                                                    <i class="ph-bold ph-shuffle text-base"></i>
+                                                    <span>Filtro Aleatório</span>
+                                                </button>
+
+                                                <button 
+                                                    onclick="event.stopPropagation(); document.getElementById('photoFileInput').click()"
+                                                    class="py-2.5 px-3 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md text-xs font-medium text-white border border-white/20 transition-colors shrink-0"
+                                                    title="Selecionar outra foto do seu computador"
+                                                >
+                                                    Trocar Foto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- VERSO DO CARD (GIRA 180°): DETALHES DO PROMPT SORTEADO E COMPARAÇÃO -->
+                                    <div class="flip-card-back bg-stage-950 border border-amber-500/50 p-3 flex flex-col">
+                                        <div class="relative flex-1 w-full rounded-xl overflow-hidden bg-zinc-900">
+                                            <img 
+                                                src="Broad_and_strong_shoulders._20261026171336.jpg" 
+                                                alt="Victor Viana — Foto Original Sem Filtro" 
+                                                class="dynamic-base-photo w-full h-full object-cover object-top"
+                                            >
+                                            <div class="absolute top-3 left-3 right-3 flex items-center justify-between">
+                                                <span class="px-3 py-1 rounded-full bg-amber-500 text-stage-950 font-bold text-xs shadow-lg">
+                                                    Foto Original (Sem Filtro)
+                                                </span>
+                                                <span class="px-2.5 py-1 rounded-full bg-black/75 text-zinc-200 text-xs border border-white/15">
+                                                    Desvirar ↻
+                                                </span>
+                                            </div>
+                                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-5 pt-12">
+                                                <span id="heroBackTitle" class="font-serif text-amber-300 text-xl block">Referência Original Intacta</span>
+                                                <p id="heroBackPrompt" class="font-mono text-[11px] text-amber-100/90 mt-1 line-clamp-2">
+                                                    Clique em "Filtro Aleatório" na frente do card para testar diferentes iluminações e lentes sobre esta foto.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SLIDE 1 DO TELÃO: CURSO INTERATIVO + SIMULADOR DE PROMPTS AO VIVO
+                 ==================================================================== -->
+            <section id="slideLearn" class="telao-slide hidden flex-1 overflow-y-auto px-6 sm:px-12 lg:px-16 py-8">
+                <div class="max-w-[1380px] mx-auto space-y-8">
+                    
+                    <!-- Seletor das 4 Aulas + Botão do Simulador Prático -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-white/[0.08]">
+                        <div>
+                            <span class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-amber-400 block">
+                                Curso Prático Interativo
+                            </span>
+                            <h2 class="font-serif text-4xl sm:text-5xl text-white mt-0.5">
+                                Engenharia de Prompts para Retratos
+                            </h2>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2.5" id="lessonTabsContainer">
+                            <!-- Gerado via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo Dinâmico da Aula Selecionada -->
+                    <div id="lessonContentArea" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SLIDE 2 DO TELÃO: CATEGORIAS DE FILTROS (CARDS MAIORES)
+                 ==================================================================== -->
+            <section id="slideCategories" class="telao-slide hidden flex-1 overflow-y-auto px-6 sm:px-12 lg:px-16 py-8">
+                <div class="mb-7 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div>
+                        <span class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-amber-400 block">
+                            Escolha um Estilo Visual
+                        </span>
+                        <h2 class="font-serif text-4xl sm:text-5xl text-white mt-0.5">
+                            Categorias de Filtros
+                        </h2>
+                    </div>
+                    <p class="text-sm sm:text-base text-zinc-300">
+                        Selecione uma categoria abaixo para abrir os retratos e prompts prontos
+                    </p>
+                </div>
+
+                <!-- Grid das 6 Categorias no Telão -->
+                <div id="telaoCategoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Preenchido via JS -->
+                </div>
+            </section>
+
+            <!-- ====================================================================
+                 SLIDE 3 DO TELÃO: SOBRE O PROJETO & CONFIGURAÇÃO DA FOTO
+                 ==================================================================== -->
+            <section id="slideAbout" class="telao-slide hidden flex-1 overflow-y-auto px-6 sm:px-12 lg:px-16 py-8 flex items-center">
+                <div class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center my-auto">
+                    <div class="lg:col-span-7 space-y-6">
+                        <span class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-amber-400 block">
+                            Sobre o Dicionário de Prompts
+                        </span>
+                        <h2 class="font-serif text-4xl sm:text-6xl text-white leading-tight">
+                            Por que testar todos os comandos em uma única foto?
+                        </h2>
+                        <p class="text-base sm:text-lg text-zinc-200 leading-relaxed">
+                            Quando você vê exemplos de inteligência artificial na internet, cada imagem mostra uma pessoa e um cenário diferente. Isso torna impossível entender o que cada palavra do prompt realmente fez.
+                        </p>
+                        <p class="text-base sm:text-lg text-zinc-300 leading-relaxed">
+                            Neste guia criado por <strong>Victor Viana</strong>, usamos sempre o mesmo retrato original como base. Assim, você enxerga com clareza absoluta o efeito real de cada tipo de iluminação, lente fotográfica e estilo de cor.
+                        </p>
+
+                        <div class="pt-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="p-5 rounded-2xl bg-stage-950 border border-white/10">
+                                <span class="text-amber-400 font-bold text-base block mb-1.5">1. Escolha o Efeito</span>
+                                <p class="text-xs sm:text-sm text-zinc-300">Navegue pelas categorias e gire o card em 3D para comparar com a foto original.</p>
+                            </div>
+                            <div class="p-5 rounded-2xl bg-stage-950 border border-white/10">
+                                <span class="text-amber-400 font-bold text-base block mb-1.5">2. Copie o Prompt</span>
+                                <p class="text-xs sm:text-sm text-zinc-300">Todos os comandos já estão prontos e otimizados para preservar suas feições.</p>
+                            </div>
+                            <div class="p-5 rounded-2xl bg-stage-950 border border-white/10">
+                                <span class="text-amber-400 font-bold text-base block mb-1.5">3. Aplique na sua Foto</span>
+                                <p class="text-xs sm:text-sm text-zinc-300">Cole na sua ferramenta favorita junto com a sua foto de referência.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 bg-stage-950 border border-white/15 rounded-3xl p-7 space-y-5 shadow-2xl">
+                        <h3 class="font-serif text-3xl text-white">Configuração da Foto Base</h3>
+                        <p class="text-sm text-zinc-300 leading-relaxed">
+                            O site utiliza a foto oficial <code class="text-amber-300 font-mono">Broad_and_strong_shoulders._20261026171336.jpg</code>. Você também pode testar qualquer outra foto do seu computador em tempo real clicando abaixo:
+                        </p>
+                        <button 
+                            onclick="document.getElementById('photoFileInput').click()"
+                            class="w-full py-3.5 px-5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-stage-950 font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                        >
+                            <i class="ph-bold ph-upload-simple text-lg"></i>
+                            <span>Selecionar Foto do Computador</span>
+                        </button>
+                        <button 
+                            onclick="replayWaterDropIntro()"
+                            class="w-full py-3 px-4 rounded-2xl bg-white/5 hover:bg-white/10 text-zinc-200 text-xs sm:text-sm font-medium border border-white/10 transition-all flex items-center justify-center gap-2"
+                        >
+                            <i class="ph-fill ph-drop text-amber-400"></i>
+                            <span>Assistir Animação de Entrada Novamente</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- SETA DIREITA DO TELÃO (POSIÇÃO FIXA INDEPENDENTE DO CONTEÚDO) -->
+        <button 
+            onclick="nextTelaoSlide()"
+            aria-label="Próxima seção do telão"
+            class="hidden md:flex fixed right-4 lg:right-6 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full bg-stage-900/95 hover:bg-amber-500 text-zinc-200 hover:text-stage-950 border border-white/15 hover:border-amber-400 items-center justify-center shadow-2xl transition-colors duration-200 group"
+            title="Girar para Próxima Tela (Seta Direita)"
+        >
+            <i class="ph-bold ph-caret-right text-2xl group-hover:translate-x-0.5 transition-transform"></i>
+        </button>
+
+    </div>
+
+    <!-- ============================================================================
+         MODO 2: GALERIA DA CATEGORIA COM ROTAÇÃO 3D NOS CARDS DE RETRATO
+         ============================================================================ -->
+    <div id="categoryGalleryView" class="hidden flex-1 max-w-[1540px] w-full mx-auto px-4 sm:px-8 lg:px-12 pt-5 pb-28 relative z-10">
+        
+        <!-- Barra Compacta de Controle (1 linha fina para dar foco às fotos) -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-7 border-b border-white/10 bg-stage-950/60 backdrop-blur-xl px-5 py-3.5 rounded-2xl border">
+            <div class="flex items-center gap-3.5">
+                <button 
+                    onclick="closeCategoryGallery()"
+                    class="w-10 h-10 rounded-xl bg-stage-900 hover:bg-amber-500 text-zinc-200 hover:text-stage-950 border border-white/15 flex items-center justify-center transition-colors"
+                    title="Voltar ao Telão"
+                >
+                    <i class="ph-bold ph-arrow-left text-lg"></i>
+                </button>
+                <div>
+                    <span class="text-[11px] font-semibold uppercase tracking-widest text-amber-400 block">Dicionário de Prompts</span>
+                    <h1 id="activeCategoryTitle" class="font-serif text-3xl sm:text-4xl text-white leading-none">
+                        Luz e Clima
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Controles compactos à direita: Trocar categoria, buscar e Girar Todos os Cards em 3D -->
+            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
+                <div class="relative">
+                    <select 
+                        id="compactCategorySelect"
+                        onchange="openCategoryGallery(this.value)"
+                        aria-label="Trocar categoria"
+                        class="appearance-none bg-stage-900 hover:bg-stage-850 border border-white/15 rounded-xl pl-4 pr-9 py-2.5 text-xs sm:text-sm font-medium text-zinc-100 focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                        <!-- Gerado via JS -->
+                    </select>
+                    <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-amber-400 text-xs pointer-events-none"></i>
+                </div>
+
+                <!-- Busca Compacta -->
+                <div class="relative flex-1 sm:flex-initial sm:w-56">
+                    <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-sm"></i>
+                    <input 
+                        type="text" 
+                        id="gallerySearchInput"
+                        placeholder="Buscar filtro ou termo..." 
+                        class="w-full bg-stage-900 border border-white/15 focus:border-amber-500/60 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none"
+                    >
+                </div>
+
+                <!-- Botão Girar Todos os Cards em 3D para mostrar a Foto Original -->
+                <button 
+                    id="toggleOriginalGlobalBtn"
+                    onclick="toggleGlobalOriginal()"
+                    class="px-4 py-2.5 rounded-xl bg-stage-900 hover:bg-stage-800 border border-amber-500/30 text-xs sm:text-sm font-semibold text-amber-400 flex items-center gap-2 transition-all select-none"
+                >
+                    <i class="ph-bold ph-arrows-clockwise text-base"></i>
+                    <span>Girar Todos (Original)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- GRID DE CARDS DOS FILTROS COM ROTAÇÃO 3D
+             1. No topo da imagem: APENAS o nome do filtro em destaque
+             2. A foto com o filtro (que gira em 3D ao clicar para revelar a foto original no verso)
+             3. Embaixo da foto: a descrição
+             4. Abaixo da descrição: o prompt utilizado -->
+        <div id="filtersCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Gerado via JS -->
+        </div>
+
+        <!-- Estado vazio caso busque algo inexistente -->
+        <div id="emptyGalleryState" class="hidden py-20 text-center">
+            <p class="font-serif text-3xl text-zinc-300">Nenhum filtro encontrado para essa busca.</p>
+            <button onclick="resetGallerySearch()" class="mt-4 px-5 py-2.5 rounded-xl bg-amber-500 text-stage-950 text-xs sm:text-sm font-bold">
+                Mostrar todos os filtros
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ============================================================================
+         MODAL DE COMPARAÇÃO EM TELA CHEIA (ANTES E DEPOIS)
+         ============================================================================ -->
+    <div id="compareModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+        <div class="bg-stage-900 border border-white/15 rounded-3xl max-w-5xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
+            
+            <!-- Slider Antes / Depois -->
+            <div class="relative w-full md:w-1/2 bg-stage-950 select-none overflow-hidden flex items-center justify-center min-h-[360px] sm:min-h-[500px]">
+                <div id="modalFilteredLayer" class="absolute inset-0 w-full h-full">
+                    <img id="modalFilteredImg" src="" alt="Com Filtro" class="w-full h-full object-cover object-top">
+                </div>
+
+                <div id="modalOriginalLayer" class="absolute inset-0 w-full h-full" style="clip-path: inset(0 50% 0 0);">
+                    <img id="modalOriginalImg" src="" alt="Foto Original" class="w-full h-full object-cover object-top">
+                </div>
+
+                <span class="absolute top-3 left-3 z-10 bg-black/75 backdrop-blur-md text-zinc-200 text-xs font-medium px-3 py-1 rounded-full border border-white/10 pointer-events-none">
+                    Foto Original
+                </span>
+                <span class="absolute top-3 right-3 z-10 bg-amber-500 text-stage-950 font-bold text-xs px-3 py-1 rounded-full pointer-events-none">
+                    Com Filtro
+                </span>
+
+                <div id="modalDividerLine" class="absolute top-0 bottom-0 left-1/2 w-[2px] bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.9)] pointer-events-none">
+                    <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-stage-950 border-2 border-amber-400 text-amber-400 shadow-lg flex items-center justify-center">
+                        <i class="ph-bold ph-arrows-out-line-horizontal text-base"></i>
+                    </div>
+                </div>
+
+                <input 
+                    type="range" 
+                    id="modalCompareSlider" 
+                    min="0" 
+                    max="100" 
+                    value="50" 
+                    aria-label="Arraste para comparar a foto original com o filtro"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
+                >
+            </div>
+
+            <!-- Detalhes do Filtro -->
+            <div class="w-full md:w-1/2 p-6 sm:p-9 flex flex-col justify-between overflow-y-auto">
+                <div class="space-y-5">
+                    <div class="flex items-start justify-between gap-4">
+                        <h3 id="modalFilterTitle" class="font-serif text-3xl sm:text-4xl text-white leading-tight">
+                            Nome do Filtro
+                        </h3>
+                        <button onclick="closeCompareModal()" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center shrink-0">
+                            <i class="ph-bold ph-x text-lg"></i>
+                        </button>
+                    </div>
+
+                    <p id="modalFilterDesc" class="text-base text-zinc-200 leading-relaxed"></p>
+
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-amber-400 block mb-2">Prompt utilizado:</span>
+                        <div id="modalFilterPrompt" class="bg-stage-950 border border-white/10 rounded-2xl p-4 font-mono text-xs sm:text-sm text-amber-100 leading-relaxed select-all"></div>
+                    </div>
+                </div>
+
+                <div class="pt-6 mt-6 border-t border-white/10">
+                    <button id="modalCopyPromptBtn" class="w-full py-4 px-5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stage-950 font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all">
+                        <i class="ph-bold ph-copy text-lg"></i>
+                        <span>Copiar Prompt</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================================
+         RODAPÉ COM BOTÕES DE NAVEGAÇÃO DO TELÃO (HOME, APRENDIZADO, CATEGORIAS, SOBRE)
+         ============================================================================ -->
+    <nav aria-label="Navegação Principal do Telão" class="fixed bottom-4 inset-x-0 z-40 flex justify-center px-4 pointer-events-none">
+        <div class="pointer-events-auto bg-stage-900/90 backdrop-blur-2xl border border-white/15 rounded-2xl p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex items-center gap-1 sm:gap-2">
+            
+            <button 
+                onclick="navigateDock('home')"
+                id="dockBtn-home"
+                class="dock-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all bg-amber-500 text-stage-950"
+            >
+                <i class="ph-bold ph-house text-base"></i>
+                <span>Home</span>
+            </button>
+
+            <button 
+                onclick="navigateDock('learn')"
+                id="dockBtn-learn"
+                class="dock-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all text-zinc-300 hover:text-white hover:bg-white/5"
+            >
+                <i class="ph-bold ph-graduation-cap text-base"></i>
+                <span>Aprendizado</span>
+            </button>
+
+            <button 
+                onclick="navigateDock('categories')"
+                id="dockBtn-categories"
+                class="dock-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all text-zinc-300 hover:text-white hover:bg-white/5"
+            >
+                <i class="ph-bold ph-squares-four text-base"></i>
+                <span>Categorias</span>
+            </button>
+
+            <button 
+                onclick="navigateDock('about')"
+                id="dockBtn-about"
+                class="dock-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all text-zinc-300 hover:text-white hover:bg-white/5"
+            >
+                <i class="ph-bold ph-info text-base"></i>
+                <span>Sobre</span>
+            </button>
+
+        </div>
+    </nav>
+
+    <!-- ============================================================================
+         SCRIPT PRINCIPAL DO APLICATIVO
+         ============================================================================ -->
+    <script>
+        /**
+         * 1. CONTROLE DA ANIMAÇÃO DE ENTRADA (GOTA DE ÁGUA NO ESCURO)
+         */
+        let introTimeoutId = null;
+
+        function startIntroSequence() {
+            const introEl = document.getElementById('waterDropIntro');
+            introEl.classList.remove('intro-hidden');
+            introEl.classList.remove('play-drop');
+            void introEl.offsetWidth; // Reinicia os keyframes CSS
+            introEl.classList.add('play-drop');
+
+            clearTimeout(introTimeoutId);
+            introTimeoutId = setTimeout(() => {
+                dismissIntro();
+            }, 3500);
+        }
+
+        window.dismissIntro = function() {
+            clearTimeout(introTimeoutId);
+            const introEl = document.getElementById('waterDropIntro');
+            introEl.classList.add('intro-hidden');
+        };
+
+        window.replayWaterDropIntro = function() {
+            startIntroSequence();
+        };
+
+        /**
+         * 2. BACKGROUND CRIATIVO DE FOTOGRAFIA (BOKEH F/1.4 & PARTÍCULAS DE LUZ)
+         */
+        function initPhotographyBokehCanvas() {
+            const canvas = document.getElementById('photographyBokehCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            let mouseX = width / 2;
+            let mouseY = height / 2;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            // Círculos de Bokeh de Lente (f/1.4) e poeira iluminada de projetor
+            const bokehParticles = Array.from({ length: 34 }, (_, i) => {
+                const isLargeBokeh = i < 10;
+                return {
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: isLargeBokeh ? (28 + Math.random() * 55) : (2 + Math.random() * 6),
+                    speedX: (Math.random() - 0.5) * 0.25,
+                    speedY: -0.15 - Math.random() * 0.35,
+                    alpha: isLargeBokeh ? (0.025 + Math.random() * 0.045) : (0.12 + Math.random() * 0.28),
+                    hue: Math.random() > 0.25 ? 38 : 210, // Âmbar dourado predominante com toques frios de lente
+                    isRing: isLargeBokeh,
+                    pulsePhase: Math.random() * Math.PI * 2
+                };
+            });
+
+            function drawBokehFrame() {
+                ctx.clearRect(0, 0, width, height);
+
+                const parallaxX = (mouseX - width / 2) * 0.015;
+                const parallaxY = (mouseY - height / 2) * 0.015;
+
+                bokehParticles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.pulsePhase += 0.012;
+
+                    if (p.y + p.radius < 0) p.y = height + p.radius;
+                    if (p.x - p.radius > width) p.x = -p.radius;
+                    if (p.x + p.radius < 0) p.x = width + p.radius;
+
+                    const drawX = p.x + parallaxX * (p.isRing ? 1.4 : 0.5);
+                    const drawY = p.y + parallaxY * (p.isRing ? 1.4 : 0.5);
+                    const currentAlpha = p.alpha * (0.75 + 0.25 * Math.sin(p.pulsePhase));
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(drawX, drawY, p.radius, 0, Math.PI * 2);
+
+                    if (p.isRing) {
+                        // Bokeh óptico de lente: preenchimento suave + borda de refração
+                        const grad = ctx.createRadialGradient(drawX, drawY, p.radius * 0.1, drawX, drawY, p.radius);
+                        grad.addColorStop(0, `hsla(${p.hue}, 95%, 60%, 0)`);
+                        grad.addColorStop(0.75, `hsla(${p.hue}, 95%, 60%, ${currentAlpha * 0.7})`);
+                        grad.addColorStop(1, `hsla(${p.hue}, 95%, 65%, ${currentAlpha * 1.5})`);
+                        ctx.fillStyle = grad;
+                        ctx.fill();
+                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = `hsla(${p.hue}, 90%, 70%, ${currentAlpha * 1.4})`;
+                        ctx.stroke();
+                    } else {
+                        // Partícula de luz no feixe do projetor
+                        ctx.fillStyle = `hsla(${p.hue}, 95%, 72%, ${currentAlpha})`;
+                        ctx.shadowColor = `hsla(${p.hue}, 95%, 60%, 0.6)`;
+                        ctx.shadowBlur = 8;
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                });
+
+                requestAnimationFrame(drawBokehFrame);
+            }
+
+            drawBokehFrame();
+        }
+
+        /**
+         * 3. FOTO BASE OFICIAL ENVIADA PELO USUÁRIO
+         */
+        const USER_PHOTO_FILENAME = "Broad_and_strong_shoulders._20261026171336.jpg";
+        const FALLBACK_STUDIO_PORTRAIT = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=85";
+
+        let currentBasePhoto = localStorage.getItem('victor_viana_custom_photo') || USER_PHOTO_FILENAME;
+
+        function verifyAndApplyBasePhoto() {
+            const testImg = new Image();
+            testImg.onload = () => {
+                applyPhotoToAllElements(currentBasePhoto);
+            };
+            testImg.onerror = () => {
+                if (currentBasePhoto !== FALLBACK_STUDIO_PORTRAIT) {
+                    currentBasePhoto = FALLBACK_STUDIO_PORTRAIT;
+                    applyPhotoToAllElements(currentBasePhoto);
+                }
+            };
+            testImg.src = currentBasePhoto;
+        }
+
+        function applyPhotoToAllElements(srcUrl) {
+            document.querySelectorAll('.dynamic-base-photo').forEach(img => {
+                img.src = srcUrl;
+            });
+        }
+
+        document.getElementById('photoFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                currentBasePhoto = evt.target.result;
+                try {
+                    localStorage.setItem('victor_viana_custom_photo', currentBasePhoto);
+                } catch (err) {}
+                applyPhotoToAllElements(currentBasePhoto);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        /**
+         * 4. DADOS DAS 4 AULAS DE APRENDIZADO + SIMULADOR PRÁTICO
+         */
+        const learningLessons = [
+            {
+                id: 0,
+                shortTitle: "1. Os 4 Pilares",
+                title: "A Estrutura dos 4 Pilares de um Bom Prompt",
+                summary: "Um prompt eficiente não é uma lista aleatória de palavras difíceis. Ele segue uma ordem clara de fotografia: Sujeito, Iluminação, Lente e Estilo de Cor.",
+                formula: [
+                    { label: "1. Sujeito", text: "portrait of the same man, natural skin texture", desc: "Mantém a pessoa e a textura real da pele." },
+                    { label: "2. Iluminação", text: "warm golden hour sunlight, soft shadows", desc: "Define de onde vem a luz e o clima da cena." },
+                    { label: "3. Lente", text: "shot on 85mm lens, f/1.4, blurred background", desc: "Define o enquadramento e o desfoque do fundo." },
+                    { label: "4. Estilo & Cor", text: "cinematic warm color grading, photorealistic", desc: "Dá o acabamento final de cinema." }
+                ],
+                avoid: "Evite misturar 10 estilos contraditórios na mesma frase (ex: pedir 'cyberpunk neon' junto com 'luz solar do meio-dia' e 'pintura a óleo').",
+                recommended: "Use frases diretas separadas por vírgula, começando pelo que é mais importante: a luz e a lente.",
+                demoFilterCategory: "lighting"
+            },
+            {
+                id: 1,
+                shortTitle: "2. Luz e Clima",
+                title: "Como Mudar a Iluminação sem Deformar o Rosto",
+                summary: "A iluminação é o recurso mais poderoso porque transforma completamente uma foto simples de parede branca em um retrato profissional de cinema.",
+                formula: [
+                    { label: "Luz Dourada", text: "warm golden hour sunlight, sunset glow", desc: "Traz calor, pôr do sol e sombras suaves." },
+                    { label: "Luz de Recorte", text: "dramatic rim lighting, backlit silhouette", desc: "Cria uma linha de luz ao redor dos ombros e cabeça." },
+                    { label: "Luz Lateral", text: "soft window side lighting, chiaroscuro", desc: "Ilumina metade do rosto e cria profundidade." },
+                    { label: "Luz Noturna", text: "dual tone cyan and amber city lights", desc: "Simula reflexos de luzes urbanas à noite." }
+                ],
+                avoid: "Evite termos vagos como 'boa iluminação' ou 'luz bonita'. Eles fazem a ferramenta inventar luzes artificiais exageradas.",
+                recommended: "Sempre diga a direção e a cor da luz: 'luz lateral suave de janela' ou 'luz dourada de fim de tarde'.",
+                demoFilterCategory: "lighting"
+            },
+            {
+                id: 2,
+                shortTitle: "3. Lentes na Prática",
+                title: "O Segredo das Lentes: 24mm, 50mm e 85mm",
+                summary: "Apenas trocando o número da lente no seu prompt, você muda completamente a distância da câmera e a sensação de poder ou proximidade do retrato.",
+                formula: [
+                    { label: "Lente 85mm f/1.4", text: "shot on 85mm prime lens, wide aperture f/1.4, creamy bokeh", desc: "A melhor para retratos: destaca o rosto e desfoca o fundo." },
+                    { label: "Lente 50mm", text: "shot on 50mm lens, natural human eye perspective", desc: "Proporção natural, igual à visão do olho humano." },
+                    { label: "Lente 24mm", text: "wide angle 24mm lens, dynamic perspective", desc: "Mostra mais do ambiente e cria um visual dinâmico." },
+                    { label: "Close-up", text: "tight cinematic close-up portrait, sharp focus on eyes", desc: "Aproxima o quadro focando na expressão do olhar." }
+                ],
+                avoid: "Não peça 'fundo desfocado' junto com 'lente grande angular 12mm', pois lentes abertas mostram tudo em foco.",
+                recommended: "Para retratos elegantes, combine sempre '85mm lens' com 'f/1.4 aperture' e 'blurred background'.",
+                demoFilterCategory: "camera"
+            },
+            {
+                id: 3,
+                shortTitle: "4. Fidelidade do Rosto",
+                title: "Como Preservar sua Identidade e Textura Natural",
+                summary: "O maior erro ao usar prompts é deixar a imagem com aparência plástica ou alterar o formato do rosto. Veja os termos que protegem seus traços reais.",
+                formula: [
+                    { label: "Pele Real", text: "natural skin texture, visible pores, unretouched", desc: "Impede que o rosto fique liso como boneco de cera." },
+                    { label: "Fidelidade", text: "preserving exact facial features and expression", desc: "Instrui a manter seus olhos, nariz e formato do rosto." },
+                    { label: "Fotografia Real", text: "authentic studio photography, natural lighting", desc: "Afasta o aspecto de desenho digital." },
+                    { label: "Grão Sutil", text: "subtle 35mm film grain, organic texture", desc: "Adiciona textura fotográfica que une a imagem." }
+                ],
+                avoid: "Evite palavras como 'perfeito', 'ultra liso', 'modelo 3D' ou 'hiper embelezado', que destroem a semelhança com você.",
+                recommended: "Finalize seus prompts de retrato com 'natural skin texture, photorealistic photography'.",
+                demoFilterCategory: "grading"
+            }
+        ];
+
+        /**
+         * 5. CATEGORIAS E CATÁLOGO DE FILTROS
+         */
+        const categories = [
+            {
+                id: 'lighting',
+                name: 'Luz e Clima',
+                description: 'Luz de fim de tarde, iluminação dramática de estúdio, luz de janela e reflexos noturnos.',
+                previewEffect: 'fx-golden-hour',
+                previewOverlay: 'ov-golden'
+            },
+            {
+                id: 'camera',
+                name: 'Lentes e Enquadramento',
+                description: 'Desfoque de fundo com lente 85mm, ângulo aberto dinâmico e aproximação de cinema.',
+                previewEffect: 'fx-85mm-bokeh',
+                previewOverlay: ''
+            },
+            {
+                id: 'grading',
+                name: 'Cores de Cinema',
+                description: 'Tons quentes de filme analógico, preto e branco clássico e paletas consagradas do cinema.',
+                previewEffect: 'fx-bw-classic',
+                previewOverlay: ''
+            },
+            {
+                id: 'poses',
+                name: 'Movimento e Atmosfera',
+                description: 'Sensação de brisa em movimento, atmosfera de chuva noturna e energia espontânea.',
+                previewEffect: 'fx-rain-mood',
+                previewOverlay: ''
+            },
+            {
+                id: 'creative',
+                name: 'Efeitos de Luz e Óptica',
+                description: 'Reflexos de cristal na lente e fusão artística com paisagens naturais.',
+                previewEffect: 'fx-prism-light',
+                previewOverlay: 'ov-prism'
+            },
+            {
+                id: 'artistic',
+                name: 'Estilos Artísticos',
+                description: 'Transformações criativas em escultura de animação e pintura clássica em tela.',
+                previewEffect: 'fx-oil-canvas',
+                previewOverlay: 'ov-golden'
+            }
+        ];
+
+        const filtersCatalog = [
+            // 1. LUZ E CLIMA
+            {
+                id: 101,
+                category: 'lighting',
+                name: 'Luz de Fim de Tarde (Golden Hour)',
+                description: 'Adiciona a iluminação dourada do pôr do sol ao retrato, aquecendo os tons de pele e criando sombras suaves sem alterar as feições.',
+                prompt: 'warm golden hour sunlight, soft long shadows, subtle sun flare, glowing warm skin tones, sunset atmosphere, natural skin texture, photorealistic portrait',
+                cssEffect: 'fx-golden-hour',
+                overlayClass: 'ov-golden'
+            },
+            {
+                id: 102,
+                category: 'lighting',
+                name: 'Luz de Contorno Dramática',
+                description: 'Escurece o ambiente ao fundo e cria uma linha de luz intensa contornando os ombros e a cabeça, destacando a silhueta com força.',
+                prompt: 'dramatic studio rim lighting, strong backlit silhouette, glowing light edges around head and shoulders, dark moody studio background, high contrast portrait',
+                cssEffect: 'fx-rim-light',
+                overlayClass: 'ov-rim'
+            },
+            {
+                id: 103,
+                category: 'lighting',
+                name: 'Luz Suave de Janela Lateral',
+                description: 'Ilumina um lado do rosto com luz natural difusa enquanto o outro lado mergulha em uma sombra suave e elegante.',
+                prompt: 'soft directional window side lighting, classic portrait chiaroscuro, gentle shadow falloff across face, intimate studio atmosphere, natural skin texture',
+                cssEffect: 'fx-soft-window',
+                overlayClass: 'ov-window'
+            },
+            {
+                id: 104,
+                category: 'lighting',
+                name: 'Luz Noturna Urbana (Neon Sutil)',
+                description: 'Projeta reflexos de luz azul e magenta nas laterais do rosto e da jaqueta, criando o clima de uma grande cidade à noite.',
+                prompt: 'cinematic night urban lighting, subtle cyan and magenta neon reflections on skin and jacket, moody night street atmosphere, shallow depth of field',
+                cssEffect: 'fx-neon-city',
+                overlayClass: 'ov-neon'
+            },
+
+            // 2. LENTES E ENQUADRAMENTO
+            {
+                id: 201,
+                category: 'camera',
+                name: 'Lente de Retrato 85mm (Fundo Desfocado)',
+                description: 'Destaca o rosto com nitidez cristalina nos olhos e transforma o fundo em um desfoque suave e cremoso de lente profissional.',
+                prompt: 'shot on 85mm prime lens, wide aperture f/1.4, razor-sharp focus on eyes, creamy blurred background bokeh, shallow depth of field, professional studio portrait',
+                cssEffect: 'fx-85mm-bokeh',
+                overlayClass: ''
+            },
+            {
+                id: 202,
+                category: 'camera',
+                name: 'Grande Angular 24mm Dinâmica',
+                description: 'Amplia a presença dos ombros e aproxima a perspectiva, gerando um retrato imponente com estética de capa de revista.',
+                prompt: 'shot on 24mm wide angle lens, dynamic close perspective, strong presence, editorial magazine portrait framing, sharp focus throughout',
+                cssEffect: 'fx-24mm-wide',
+                overlayClass: ''
+            },
+            {
+                id: 203,
+                category: 'camera',
+                name: 'Enquadramento Fechado de Cinema',
+                description: 'Aproxima o foco na expressão do rosto e do olhar, criando tensão dramática típica de cenas de diálogo no cinema.',
+                prompt: 'tight cinematic close-up portrait, anamorphic lens look, intense focus on eyes and expression, subtle vignette, film still composition',
+                cssEffect: 'fx-close-cinema',
+                overlayClass: 'ov-rim'
+            },
+
+            // 3. CORES DE CINEMA
+            {
+                id: 301,
+                category: 'grading',
+                name: 'Filme Analógico Quente (Kodak 400)',
+                description: 'Aplica a coloração clássica dos filmes fotográficos: pele levemente dourada, pretos aveludados e textura orgânica.',
+                prompt: 'shot on Kodak Portra 400 35mm film, warm vintage color grading, soft highlight roll-off, fine organic film grain, analog portrait photography',
+                cssEffect: 'fx-kodak-warm',
+                overlayClass: ''
+            },
+            {
+                id: 302,
+                category: 'grading',
+                name: 'Preto e Branco Clássico de Alto Contraste',
+                description: 'Remove as cores para valorizar a força da expressão, a textura da barba, o tecido da jaqueta e o desenho da luz.',
+                prompt: 'timeless black and white portrait photography, Ilford HP5 400 film look, deep rich blacks, crisp silver contrast, authentic documentary portrait',
+                cssEffect: 'fx-bw-classic',
+                overlayClass: ''
+            },
+            {
+                id: 303,
+                category: 'grading',
+                name: 'Paleta Editorial em Tons Pastel',
+                description: 'Suaviza as sombras e equilibra as cores em tons terrosos e azulados suaves, inspirado no cinema autoral europeu.',
+                prompt: 'editorial pastel color grading, warm ochre and muted teal tones, soft diffused studio light, symmetrical clean composition, fine art portrait',
+                cssEffect: 'fx-cinema-pastel',
+                overlayClass: ''
+            },
+
+            // 4. MOVIMENTO E ATMOSFERA
+            {
+                id: 401,
+                category: 'poses',
+                name: 'Atmosfera de Vento em Movimento',
+                description: 'Quebra o aspecto estático da foto de estúdio adicionando sensação de vento no tecido da jaqueta e no ambiente ao redor.',
+                prompt: 'dynamic outdoor motion portrait, wind blowing through jacket fabric, candid confident expression, subtle motion blur in background, energetic feel',
+                cssEffect: 'fx-wind-action',
+                overlayClass: ''
+            },
+            {
+                id: 402,
+                category: 'poses',
+                name: 'Retrato sob Chuva Noturna',
+                description: 'Adiciona gotas sutis de chuva iluminadas contra o fundo escuro e tons frios cinematográficos de suspense.',
+                prompt: 'moody portrait in light night rain, subtle raindrops catching the light, wet jacket texture, cool cinematic blue-grey tones, dramatic atmosphere',
+                cssEffect: 'fx-rain-mood',
+                overlayClass: 'ov-rim'
+            },
+
+            // 5. EFEITOS DE LUZ E ÓPTICA
+            {
+                id: 501,
+                category: 'creative',
+                name: 'Reflexo de Prisma de Cristal',
+                description: 'Cria feixes suaves de luz colorida nas bordas da imagem, como se a foto tivesse sido tirada através de um cristal.',
+                prompt: 'portrait shot through a glass prism, subtle rainbow light reflections on edges, dreamy optical flare, sharp center focus on face, creative photography',
+                cssEffect: 'fx-prism-light',
+                overlayClass: 'ov-prism'
+            },
+            {
+                id: 502,
+                category: 'creative',
+                name: 'Dupla Exposição com Natureza',
+                description: 'Funde suavemente a silhueta da jaqueta escura com a imagem de uma floresta sob neblina, mantendo o rosto nítido.',
+                prompt: 'artistic double exposure portrait, silhouette blended with a misty pine forest and mountain peaks, monochrome with warm gold highlights',
+                cssEffect: 'fx-double-nature',
+                overlayClass: 'ov-rim'
+            },
+
+            // 6. ESTILOS ARTÍSTICOS
+            {
+                id: 601,
+                category: 'artistic',
+                name: 'Personagem em Animação Stop-Motion',
+                description: 'Recria o retrato mantendo exatamente a pose de braços cruzados e as feições, mas esculpido em estilo de cinema de animação.',
+                prompt: 'stop-motion claymation style portrait, handcrafted character keeping exact pose and facial features, miniature studio lighting, tactile texture',
+                cssEffect: 'fx-clay-3d',
+                overlayClass: 'ov-golden'
+            },
+            {
+                id: 602,
+                category: 'artistic',
+                name: 'Pintura Clássica a Óleo em Tela',
+                description: 'Transforma o retrato em uma pintura tradicional com pinceladas visíveis e iluminação inspirada nos mestres clássicos.',
+                prompt: 'classical oil painting portrait on canvas, expressive brushwork texture, Rembrandt warm lighting, rich dark tones, museum masterpiece style',
+                cssEffect: 'fx-oil-canvas',
+                overlayClass: 'ov-golden'
+            }
+        ];
+
+        // =========================================================================
+        // 6. NAVEGAÇÃO DO GRANDE TELÃO COM EFEITO DE ROTAÇÃO 3D NA ESTRUTURA
+        // =========================================================================
+        const telaoSlides = [
+            { id: 'slideHome', key: 'home' },
+            { id: 'slideLearn', key: 'learn' },
+            { id: 'slideCategories', key: 'categories' },
+            { id: 'slideAbout', key: 'about' }
+        ];
+
+        let currentSlideIndex = 0;
+        let currentLessonIndex = 0;
+        let activeCategoryId = null;
+        let isGlobalOriginalActive = false;
+        let lastRandomFilterId = null;
+
+        /**
+         * BOTÃO "FILTRO ALEATÓRIO" DA FOTO NA HOME
+         */
+        window.applyRandomHomeFilter = function() {
+            const available = filtersCatalog.filter(f => f.id !== lastRandomFilterId);
+            const randomItem = available[Math.floor(Math.random() * available.length)];
+            lastRandomFilterId = randomItem.id;
+
+            const heroCard = document.getElementById('heroFlipCard');
+            if (heroCard.classList.contains('is-flipped')) {
+                heroCard.classList.remove('is-flipped');
+            }
+
+            const heroImg = document.getElementById('heroMainPhoto');
+            const heroOverlayBox = document.getElementById('heroPhotoOverlayBox');
+            const banner = document.getElementById('heroRandomPromptBanner');
+            const filterNameEl = document.getElementById('heroRandomFilterName');
+            const topBadge = document.getElementById('homeActiveFilterBadge');
+
+            heroImg.className = `dynamic-base-photo w-full h-full object-cover object-top transition-all duration-500 ${randomItem.cssEffect}`;
+            heroOverlayBox.className = `relative flex-1 w-full rounded-xl overflow-hidden bg-zinc-900 ${randomItem.overlayClass}`;
+
+            banner.classList.remove('hidden');
+            filterNameEl.textContent = randomItem.name;
+            topBadge.innerHTML = `<i class="ph-fill ph-magic-wand"></i><span>${randomItem.name}</span>`;
+
+            // Atualiza também as informações no verso 3D do card
+            document.getElementById('heroBackTitle').textContent = randomItem.name;
+            document.getElementById('heroBackPrompt').textContent = randomItem.prompt;
+        };
+
+        window.resetHomeRandomFilter = function() {
+            lastRandomFilterId = null;
+            const heroImg = document.getElementById('heroMainPhoto');
+            const heroOverlayBox = document.getElementById('heroPhotoOverlayBox');
+            const banner = document.getElementById('heroRandomPromptBanner');
+            const topBadge = document.getElementById('homeActiveFilterBadge');
+
+            heroImg.className = 'dynamic-base-photo w-full h-full object-cover object-top transition-all duration-500';
+            heroOverlayBox.className = 'relative flex-1 w-full rounded-xl overflow-hidden bg-zinc-900';
+            banner.classList.add('hidden');
+            topBadge.innerHTML = `<i class="ph-fill ph-sparkle"></i><span>Foto Original de Base</span>`;
+
+            document.getElementById('heroBackTitle').textContent = 'Referência Original Intacta';
+            document.getElementById('heroBackPrompt').textContent = 'Clique em "Filtro Aleatório" na frente do card para testar diferentes iluminações e lentes sobre esta foto.';
+        };
+
+        function renderTelaoDots() {
+            const dotsContainer = document.getElementById('telaoDots');
+            dotsContainer.innerHTML = telaoSlides.map((slide, idx) => `
+                <button 
+                    onclick="goToTelaoSlide(${idx})"
+                    aria-label="Ir para tela ${idx + 1}"
+                    class="h-2.5 rounded-full transition-all ${idx === currentSlideIndex ? 'w-8 bg-amber-400' : 'w-2.5 bg-white/20 hover:bg-white/40'}"
+                ></button>
+            `).join('');
+        }
+
+        window.goToTelaoSlide = function(index, direction = 'next') {
+            const telaoWrapper = document.getElementById('telaoWrapper');
+            const categoryGalleryView = document.getElementById('categoryGalleryView');
+            if (telaoWrapper.classList.contains('hidden')) {
+                categoryGalleryView.classList.add('hidden');
+                telaoWrapper.classList.remove('hidden');
+                activeCategoryId = null;
+            }
+
+            const newIndex = (index + telaoSlides.length) % telaoSlides.length;
+            const rotClass = direction === 'prev' ? 'spin-stage-prev' : 'spin-stage-next';
+            currentSlideIndex = newIndex;
+
+            // Gira a estrutura principal do Telão em 3D mantendo a altura fixa
+            const mainFrame = document.getElementById('telaoMainFrame');
+            mainFrame.classList.remove('spin-stage-next', 'spin-stage-prev');
+            void mainFrame.offsetWidth;
+            mainFrame.classList.add(rotClass);
+
+            telaoSlides.forEach((slide, idx) => {
+                const el = document.getElementById(slide.id);
+                if (idx === currentSlideIndex) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            renderTelaoDots();
+            updateBottomDockActiveState(telaoSlides[currentSlideIndex].key);
+        };
+
+        window.nextTelaoSlide = function() {
+            goToTelaoSlide(currentSlideIndex + 1, 'next');
+        };
+
+        window.prevTelaoSlide = function() {
+            goToTelaoSlide(currentSlideIndex - 1, 'prev');
+        };
+
+        window.navigateDock = function(targetKey) {
+            const slideIdx = telaoSlides.findIndex(s => s.key === targetKey);
+            if (slideIdx !== -1) {
+                const dir = slideIdx < currentSlideIndex ? 'prev' : 'next';
+                goToTelaoSlide(slideIdx, dir);
+            }
+        };
+
+        function updateBottomDockActiveState(activeKey) {
+            document.querySelectorAll('.dock-btn').forEach(btn => {
+                btn.className = "dock-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all text-zinc-300 hover:text-white hover:bg-white/5";
+            });
+            const activeBtn = document.getElementById(`dockBtn-${activeKey}`);
+            if (activeBtn) {
+                activeBtn.className = "dock-btn px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all bg-amber-500 text-stage-950 shadow-lg shadow-amber-500/25";
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const isModalOpen = !document.getElementById('compareModal').classList.contains('hidden');
+            if (isModalOpen) {
+                if (e.key === 'Escape') closeCompareModal();
+                return;
+            }
+            const isTelaoVisible = !document.getElementById('telaoWrapper').classList.contains('hidden');
+            if (isTelaoVisible && document.activeElement.tagName !== 'INPUT') {
+                if (e.key === 'ArrowRight') nextTelaoSlide();
+                if (e.key === 'ArrowLeft') prevTelaoSlide();
+            }
+        });
+
+        // =========================================================================
+        // 7. RENDERIZAÇÃO DO MÓDULO DE APRENDIZADO NO TELÃO
+        // =========================================================================
+        window.openLearningLesson = function(lessonIndex) {
+            currentLessonIndex = lessonIndex;
+            goToTelaoSlide(1, 'next');
+            renderLearningModule();
+        };
+
+        function renderLearningModule() {
+            const tabsContainer = document.getElementById('lessonTabsContainer');
+            tabsContainer.innerHTML = learningLessons.map((lesson, idx) => `
+                <button 
+                    onclick="openLearningLesson(${idx})"
+                    class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                        idx === currentLessonIndex 
+                        ? 'bg-amber-500 text-stage-950 shadow-lg' 
+                        : 'bg-stage-950 text-zinc-300 hover:text-white border border-white/10'
+                    }"
+                >
+                    ${lesson.shortTitle}
+                </button>
+            `).join('');
+
+            const lesson = learningLessons[currentLessonIndex];
+            const contentArea = document.getElementById('lessonContentArea');
+
+            contentArea.innerHTML = `
+                <div class="lg:col-span-7 space-y-6">
+                    <div>
+                        <h3 class="font-serif text-3xl sm:text-4xl text-white">${lesson.title}</h3>
+                        <p class="text-base sm:text-lg text-zinc-200 mt-2 leading-relaxed">${lesson.summary}</p>
+                    </div>
+
+                    <div class="space-y-3.5">
+                        <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-400 block">
+                            Blocos Essenciais para copiar e usar nos seus Prompts:
+                        </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            ${lesson.formula.map(block => `
+                                <div class="p-5 rounded-2xl bg-stage-950 border border-white/10 flex flex-col justify-between">
+                                    <div>
+                                        <span class="text-sm font-bold text-white block mb-1">${block.label}</span>
+                                        <p class="text-xs sm:text-sm text-zinc-300 mb-3.5">${block.desc}</p>
+                                    </div>
+                                    <div class="bg-stage-900 border border-white/10 rounded-xl px-3.5 py-2.5 font-mono text-xs text-amber-200 select-all">
+                                        ${block.text}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs sm:text-sm uppercase tracking-wider mb-2">
+                            <i class="ph-bold ph-check-circle text-lg"></i>
+                            <span>Boa Prática Recomendada</span>
+                        </div>
+                        <p class="text-sm sm:text-base text-zinc-100 leading-relaxed">${lesson.recommended}</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/30">
+                        <div class="flex items-center gap-2 text-rose-400 font-bold text-xs sm:text-sm uppercase tracking-wider mb-2">
+                            <i class="ph-bold ph-warning-circle text-lg"></i>
+                            <span>O Que Evitar</span>
+                        </div>
+                        <p class="text-sm sm:text-base text-zinc-100 leading-relaxed">${lesson.avoid}</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-stage-950 border border-white/15 flex items-center justify-between gap-4">
+                        <div>
+                            <span class="text-sm sm:text-base font-bold text-white block">Ver exemplos práticos na foto</span>
+                            <span class="text-xs sm:text-sm text-zinc-300">Abra os filtros prontos desta categoria</span>
+                        </div>
+                        <button 
+                            onclick="openCategoryGallery('${lesson.demoFilterCategory}')"
+                            class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stage-950 font-bold text-xs sm:text-sm shrink-0 flex items-center gap-2 transition-all"
+                        >
+                            <span>Ver Filtros</span>
+                            <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // =========================================================================
+        // 8. RENDERIZAÇÃO DAS CATEGORIAS NO SLIDE 2 DO TELÃO
+        // =========================================================================
+        function renderTelaoCategories() {
+            const grid = document.getElementById('telaoCategoriesGrid');
+            grid.innerHTML = categories.map(cat => {
+                const count = filtersCatalog.filter(f => f.category === cat.id).length;
+                return `
+                    <button 
+                        onclick="openCategoryGallery('${cat.id}')"
+                        class="group text-left bg-stage-950/90 hover:bg-stage-850 border border-white/10 hover:border-amber-500/60 rounded-2xl p-5 transition-all duration-300 flex items-center gap-5 shadow-lg hover:-translate-y-1"
+                    >
+                        <div class="relative w-24 h-28 rounded-xl overflow-hidden shrink-0 bg-zinc-900 border border-white/15 ${cat.previewOverlay}">
+                            <img 
+                                src="${currentBasePhoto}" 
+                                alt="${cat.name}" 
+                                class="dynamic-base-photo w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ${cat.previewEffect}"
+                            >
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-serif text-2xl sm:text-3xl text-white group-hover:text-amber-400 transition-colors truncate mb-1">
+                                ${cat.name}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-zinc-300 line-clamp-2 leading-relaxed mb-3">
+                                ${cat.description}
+                            </p>
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                                <span>Abrir ${count} filtros</span>
+                                <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                            </span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            const selectEl = document.getElementById('compactCategorySelect');
+            selectEl.innerHTML = categories.map(cat => `
+                <option value="${cat.id}">${cat.name}</option>
+            `).join('');
+        }
+
+        // =========================================================================
+        // 9. GALERIA DE CATEGORIA COM CARDS QUE GIRAM A ESTRUTURA EM 3D (180 GRAUS)
+        // =========================================================================
+        window.openCategoryGallery = function(categoryId) {
+            activeCategoryId = categoryId;
+            document.getElementById('telaoWrapper').classList.add('hidden');
+            document.getElementById('categoryGalleryView').classList.remove('hidden');
+
+            const catObj = categories.find(c => c.id === categoryId);
+            if (catObj) {
+                document.getElementById('activeCategoryTitle').textContent = catObj.name;
+                document.getElementById('compactCategorySelect').value = categoryId;
+            }
+
+            document.getElementById('gallerySearchInput').value = '';
+            updateBottomDockActiveState('categories');
+            renderCategoryCards();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.closeCategoryGallery = function() {
+            goToTelaoSlide(2, 'prev');
+        };
+
+        window.flipSingleFilterCard = function(cardId) {
+            const el = document.getElementById(`flipCard-${cardId}`);
+            if (el) el.classList.toggle('is-flipped');
+        };
+
+        function renderCategoryCards() {
+            const searchQuery = document.getElementById('gallerySearchInput').value.toLowerCase().trim();
+            const filteredItems = filtersCatalog.filter(item => {
+                const matchesCat = item.category === activeCategoryId;
+                const matchesQuery = !searchQuery || 
+                    item.name.toLowerCase().includes(searchQuery) ||
+                    item.description.toLowerCase().includes(searchQuery) ||
+                    item.prompt.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesQuery;
+            });
+
+            const gridEl = document.getElementById('filtersCardsGrid');
+            const emptyEl = document.getElementById('emptyGalleryState');
+
+            if (filteredItems.length === 0) {
+                gridEl.classList.add('hidden');
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            gridEl.classList.remove('hidden');
+            emptyEl.classList.add('hidden');
+
+            /* ESTRUTURA EXATA PEDIDA PELO USUÁRIO + ROTAÇÃO 3D AO VIRAR O CARD:
+               1. No topo da imagem: APENAS o nome do filtro em destaque
+               2. A foto com o filtro (Ao clicar na foto ou no botão de girar, a estrutura física gira 180° em 3D mostrando a Foto Original no verso)
+               3. Embaixo da foto: a descrição
+               4. Abaixo da descrição: o prompt utilizado */
+            gridEl.innerHTML = filteredItems.map(item => `
+                <article class="bg-stage-900/95 border border-white/15 hover:border-amber-500/50 rounded-3xl overflow-hidden flex flex-col shadow-2xl transition-all duration-300">
+                    
+                    <!-- 1. TOPO DA IMAGEM: APENAS O NOME DO FILTRO EM DESTAQUE -->
+                    <div class="px-6 py-4 bg-stage-950 border-b border-white/[0.08]">
+                        <h2 class="font-serif text-2xl sm:text-3xl text-white leading-tight tracking-wide">
+                            ${item.name}
+                        </h2>
+                    </div>
+
+                    <!-- 2. IMAGEM COM EFEITO DE GIRAR A ESTRUTURA EM 3D (FLIP 180°) -->
+                    <div class="p-3 bg-stage-950/60">
+                        <div 
+                            id="flipCard-${item.id}"
+                            onclick="flipSingleFilterCard(${item.id})"
+                            class="flip-card-3d aspect-[3/4] w-full cursor-pointer select-none"
+                            title="Clique para girar o card em 3D e comparar com a Foto Original"
+                        >
+                            <div class="flip-card-inner">
+                                
+                                <!-- FRENTE DO CARD: FOTO COM O FILTRO APLICADO -->
+                                <div class="flip-card-front bg-zinc-900 ${item.overlayClass}">
+                                    <img 
+                                        src="${currentBasePhoto}" 
+                                        alt="${item.name}" 
+                                        class="dynamic-base-photo w-full h-full object-cover object-top ${item.cssEffect}"
+                                    >
+                                    <div class="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-zinc-200 text-xs font-medium border border-white/15 flex items-center gap-1.5 pointer-events-none">
+                                        <i class="ph-bold ph-arrows-clockwise text-amber-400"></i>
+                                        <span>Clique para girar 3D</span>
+                                    </div>
+                                </div>
+
+                                <!-- VERSO DO CARD (GIRA 180°): FOTO ORIGINAL DE BASE -->
+                                <div class="flip-card-back bg-zinc-900 border-2 border-amber-500/60">
+                                    <img 
+                                        src="${currentBasePhoto}" 
+                                        alt="Foto Original sem filtro" 
+                                        class="dynamic-base-photo w-full h-full object-cover object-top"
+                                    >
+                                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pt-10 flex items-center justify-between">
+                                        <span class="px-3 py-1 rounded-full bg-amber-500 text-stage-950 font-bold text-xs">
+                                            Foto Original (Sem Filtro)
+                                        </span>
+                                        <span class="text-xs text-zinc-200 font-medium">
+                                            Clique para desvirar ↻
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. EMBAIXO DA FOTO: DESCRIÇÃO + 4. ABAIXO DA DESCRIÇÃO: O PROMPT UTILIZADO -->
+                    <div class="p-6 flex-1 flex flex-col justify-between space-y-5">
+                        <p class="text-sm sm:text-base text-zinc-200 leading-relaxed">
+                            ${item.description}
+                        </p>
+
+                        <div class="space-y-3 pt-1">
+                            <div class="bg-stage-950 border border-white/10 rounded-2xl p-4">
+                                <p class="font-mono text-xs sm:text-sm text-amber-100/95 leading-relaxed select-all">
+                                    ${item.prompt}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-2.5">
+                                <button 
+                                    onclick="copyFilterPrompt(${item.id}, this)"
+                                    class="flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stage-950 font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                                >
+                                    <i class="ph-bold ph-copy text-base"></i>
+                                    <span>Copiar Prompt</span>
+                                </button>
+                                <button 
+                                    onclick="flipSingleFilterCard(${item.id})"
+                                    class="px-3.5 py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-amber-400 border border-white/10 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                                    title="Girar estrutura do card em 3D"
+                                >
+                                    <i class="ph-bold ph-arrows-clockwise text-base"></i>
+                                </button>
+                                <button 
+                                    onclick="openCompareModal(${item.id})"
+                                    class="px-3.5 py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 hover:text-white border border-white/10 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                                    title="Comparar na Cortina Antes e Depois"
+                                >
+                                    <i class="ph-bold ph-arrows-out-simple text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </article>
+            `).join('');
+        }
+
+        document.getElementById('gallerySearchInput').addEventListener('input', renderCategoryCards);
+
+        window.resetGallerySearch = function() {
+            document.getElementById('gallerySearchInput').value = '';
+            renderCategoryCards();
+        };
+
+        // Girar todos os cards da galeria em 3D simultaneamente
+        window.toggleGlobalOriginal = function() {
+            isGlobalOriginalActive = !isGlobalOriginalActive;
+            document.body.classList.toggle('show-original-all', isGlobalOriginalActive);
+            const btn = document.getElementById('toggleOriginalGlobalBtn');
+            if (isGlobalOriginalActive) {
+                btn.classList.add('!bg-amber-500', '!text-stage-950');
+                btn.innerHTML = `<i class="ph-bold ph-arrows-clockwise text-base"></i><span>Desvirar Todos (Filtro)</span>`;
+            } else {
+                btn.classList.remove('!bg-amber-500', '!text-stage-950');
+                btn.innerHTML = `<i class="ph-bold ph-arrows-clockwise text-base"></i><span>Girar Todos (Original)</span>`;
+            }
+        };
+
+        // Copiar Prompt
+        window.copyFilterPrompt = function(filterId, btnEl) {
+            const item = filtersCatalog.find(f => f.id === filterId);
+            if (!item) return;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = item.prompt;
+            tempInput.style.position = 'fixed';
+            tempInput.style.opacity = '0';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const prevHtml = btnEl.innerHTML;
+            btnEl.classList.add('!bg-emerald-500', '!text-stage-950');
+            btnEl.innerHTML = `<i class="ph-bold ph-check text-base"></i><span>Prompt Copiado!</span>`;
+            setTimeout(() => {
+                btnEl.classList.remove('!bg-emerald-500', '!text-stage-950');
+                btnEl.innerHTML = prevHtml;
+            }, 1600);
+        };
+
+        // =========================================================================
+        // 10. MODAL DE COMPARAÇÃO ANTES E DEPOIS
+        // =========================================================================
+        let activeModalFilterId = null;
+        const compareModal = document.getElementById('compareModal');
+        const modalCompareSlider = document.getElementById('modalCompareSlider');
+        const modalOriginalLayer = document.getElementById('modalOriginalLayer');
+        const modalDividerLine = document.getElementById('modalDividerLine');
+
+        window.openCompareModal = function(filterId) {
+            const item = filtersCatalog.find(f => f.id === filterId);
+            if (!item) return;
+            activeModalFilterId = filterId;
+
+            const filteredImg = document.getElementById('modalFilteredImg');
+            const originalImg = document.getElementById('modalOriginalImg');
+            const filteredLayer = document.getElementById('modalFilteredLayer');
+
+            filteredImg.src = currentBasePhoto;
+            originalImg.src = currentBasePhoto;
+            filteredImg.className = `dynamic-base-photo w-full h-full object-cover object-top ${item.cssEffect}`;
+            filteredLayer.className = `absolute inset-0 w-full h-full ${item.overlayClass}`;
+
+            document.getElementById('modalFilterTitle').textContent = item.name;
+            document.getElementById('modalFilterDesc').textContent = item.description;
+            document.getElementById('modalFilterPrompt').textContent = item.prompt;
+
+            modalCompareSlider.value = 50;
+            updateModalClip(50);
+
+            compareModal.classList.remove('hidden');
+            compareModal.classList.add('flex');
+        };
+
+        window.closeCompareModal = function() {
+            compareModal.classList.add('hidden');
+            compareModal.classList.remove('flex');
+        };
+
+        function updateModalClip(val) {
+            const rightInset = 100 - val;
+            modalOriginalLayer.style.clipPath = `inset(0 ${rightInset}% 0 0)`;
+            modalDividerLine.style.left = `${val}%`;
+        }
+
+        modalCompareSlider.addEventListener('input', (e) => updateModalClip(e.target.value));
+        compareModal.addEventListener('click', (e) => {
+            if (e.target === compareModal) closeCompareModal();
+        });
+
+        document.getElementById('modalCopyPromptBtn').addEventListener('click', function() {
+            if (activeModalFilterId) copyFilterPrompt(activeModalFilterId, this);
+        });
+
+        // Inicialização Geral
+        initPhotographyBokehCanvas();
+        startIntroSequence();
+        verifyAndApplyBasePhoto();
+        renderTelaoDots();
+        renderLearningModule();
+        renderTelaoCategories();
+    </script>
+</body>
+</html>
